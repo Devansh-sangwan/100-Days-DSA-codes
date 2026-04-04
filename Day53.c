@@ -8,12 +8,72 @@ struct Node {
     struct Node* right;
 };
 
-// Create new node
+// Queue Node (for BFS)
+struct QNode {
+    struct Node* node;
+    int hd;
+};
+
+// Create new tree node
 struct Node* newNode(int data) {
     struct Node* temp = (struct Node*)malloc(sizeof(struct Node));
     temp->data = data;
     temp->left = temp->right = NULL;
     return temp;
+}
+
+// Queue implementation
+struct QNode queue[1000];
+int front = 0, rear = 0;
+
+void enqueue(struct Node* node, int hd) {
+    queue[rear].node = node;
+    queue[rear].hd = hd;
+    rear++;
+}
+
+struct QNode dequeue() {
+    return queue[front++];
+}
+
+int isEmpty() {
+    return front == rear;
+}
+
+// Vertical Order Traversal
+void verticalOrder(struct Node* root) {
+    if (!root) return;
+
+    int map[2000][100];   // store nodes
+    int count[2000] = {0};
+
+    int offset = 1000; // shift for negative index
+
+    enqueue(root, 0);
+
+    while (!isEmpty()) {
+        struct QNode temp = dequeue();
+        struct Node* curr = temp.node;
+        int hd = temp.hd;
+
+        map[hd + offset][count[hd + offset]++] = curr->data;
+
+        if (curr->left)
+            enqueue(curr->left, hd - 1);
+
+        if (curr->right)
+            enqueue(curr->right, hd + 1);
+    }
+
+    // Print result
+    for (int i = 0; i < 2000; i++) {
+        if (count[i] > 0) {
+            for (int j = 0; j < count[i]; j++) {
+                printf("%d ", map[i][j]);
+            }
+            printf("\n");
+        }
+    }
 }
 
 // Build tree from level order
@@ -47,41 +107,6 @@ struct Node* buildTree(int arr[], int n) {
     return root;
 }
 
-// Zigzag Traversal
-void zigzagTraversal(struct Node* root) {
-    if (!root) return;
-
-    struct Node* queue[1000];
-    int front = 0, rear = 0;
-
-    queue[rear++] = root;
-    int leftToRight = 1;
-
-    while (front < rear) {
-        int size = rear - front;
-        int level[size];
-
-        for (int i = 0; i < size; i++) {
-            struct Node* curr = queue[front++];
-
-            int index = leftToRight ? i : (size - 1 - i);
-            level[index] = curr->data;
-
-            if (curr->left)
-                queue[rear++] = curr->left;
-
-            if (curr->right)
-                queue[rear++] = curr->right;
-        }
-
-        for (int i = 0; i < size; i++) {
-            printf("%d ", level[i]);
-        }
-
-        leftToRight = !leftToRight; // flip direction
-    }
-}
-
 int main() {
     int n;
     scanf("%d", &n);
@@ -92,7 +117,7 @@ int main() {
 
     struct Node* root = buildTree(arr, n);
 
-    zigzagTraversal(root);
+    verticalOrder(root);
 
     return 0;
 }

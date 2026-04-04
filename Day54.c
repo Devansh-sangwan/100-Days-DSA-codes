@@ -47,24 +47,39 @@ struct Node* buildTree(int arr[], int n) {
     return root;
 }
 
-// LCA Function
-struct Node* findLCA(struct Node* root, int n1, int n2) {
-    if (root == NULL)
-        return NULL;
+// Zigzag Traversal
+void zigzagTraversal(struct Node* root) {
+    if (!root) return;
 
-    // If current node matches
-    if (root->data == n1 || root->data == n2)
-        return root;
+    struct Node* queue[1000];
+    int front = 0, rear = 0;
 
-    struct Node* left = findLCA(root->left, n1, n2);
-    struct Node* right = findLCA(root->right, n1, n2);
+    queue[rear++] = root;
+    int leftToRight = 1;
 
-    // If both sides return non-null → this is LCA
-    if (left != NULL && right != NULL)
-        return root;
+    while (front < rear) {
+        int size = rear - front;
+        int level[size];
 
-    // Otherwise return non-null child
-    return (left != NULL) ? left : right;
+        for (int i = 0; i < size; i++) {
+            struct Node* curr = queue[front++];
+
+            int index = leftToRight ? i : (size - 1 - i);
+            level[index] = curr->data;
+
+            if (curr->left)
+                queue[rear++] = curr->left;
+
+            if (curr->right)
+                queue[rear++] = curr->right;
+        }
+
+        for (int i = 0; i < size; i++) {
+            printf("%d ", level[i]);
+        }
+
+        leftToRight = !leftToRight; // flip direction
+    }
 }
 
 int main() {
@@ -75,15 +90,9 @@ int main() {
     for (int i = 0; i < n; i++)
         scanf("%d", &arr[i]);
 
-    int n1, n2;
-    scanf("%d %d", &n1, &n2);
-
     struct Node* root = buildTree(arr, n);
 
-    struct Node* lca = findLCA(root, n1, n2);
-
-    if (lca)
-        printf("%d\n", lca->data);
+    zigzagTraversal(root);
 
     return 0;
 }
