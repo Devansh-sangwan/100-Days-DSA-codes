@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Node structure for adjacency list
 struct Node {
     int vertex;
     struct Node* next;
 };
 
-// Create a new node
 struct Node* createNode(int v) {
     struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
     newNode->vertex = v;
@@ -15,18 +13,32 @@ struct Node* createNode(int v) {
     return newNode;
 }
 
-// DFS function
-void dfs(int v, struct Node* adj[], int visited[]) {
-    visited[v] = 1;
-    printf("%d ", v);
+void bfs(int s, struct Node* adj[], int n) {
+    int visited[n];
+    int queue[n];
+    int front = 0, rear = 0;
 
-    struct Node* temp = adj[v];
-    while (temp != NULL) {
-        int neighbor = temp->vertex;
-        if (!visited[neighbor]) {
-            dfs(neighbor, adj, visited);
+    for(int i = 0; i < n; i++)
+        visited[i] = 0;
+
+    visited[s] = 1;
+    queue[rear++] = s;
+
+    while(front < rear) {
+        int v = queue[front++];
+        printf("%d ", v);
+
+        struct Node* temp = adj[v];
+        while(temp != NULL) {
+            int neighbor = temp->vertex;
+
+            if(!visited[neighbor]) {
+                visited[neighbor] = 1;
+                queue[rear++] = neighbor;
+            }
+
+            temp = temp->next;
         }
-        temp = temp->next;
     }
 }
 
@@ -34,21 +46,16 @@ int main() {
     int n, m;
     scanf("%d %d", &n, &m);
 
-    // Adjacency list
     struct Node* adj[n];
 
-    // Initialize
-    for (int i = 0; i < n; i++) {
+    for(int i = 0; i < n; i++)
         adj[i] = NULL;
-    }
 
     int u, v;
 
-    // Input edges
-    for (int i = 0; i < m; i++) {
+    for(int i = 0; i < m; i++) {
         scanf("%d %d", &u, &v);
 
-        // Undirected graph
         struct Node* newNode = createNode(v);
         newNode->next = adj[u];
         adj[u] = newNode;
@@ -58,17 +65,11 @@ int main() {
         adj[v] = newNode;
     }
 
-    // Visited array
-    int visited[n];
-    for (int i = 0; i < n; i++) {
-        visited[i] = 0;
-    }
-
     int s;
     scanf("%d", &s);
 
-    printf("DFS Traversal: ");
-    dfs(s, adj, visited);
+    printf("BFS Traversal: ");
+    bfs(s, adj, n);
 
     return 0;
 }
